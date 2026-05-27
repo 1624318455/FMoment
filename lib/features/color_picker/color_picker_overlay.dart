@@ -26,10 +26,12 @@ class _ColorPickerOverlayState extends ConsumerState<ColorPickerOverlay> {
   final int _gridSize = 15;
   final double _pixelSize = 12;
   final List<List<Color>> _gridColors = [];
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     _gridColors.clear();
     for (int i = 0; i < _gridSize; i++) {
       _gridColors.add(List.filled(_gridSize, Colors.black));
@@ -80,6 +82,7 @@ class _ColorPickerOverlayState extends ConsumerState<ColorPickerOverlay> {
   @override
   void dispose() {
     _timer?.cancel();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -105,7 +108,7 @@ class _ColorPickerOverlayState extends ConsumerState<ColorPickerOverlay> {
         ),
         // 键盘事件
         KeyboardListener(
-          focusNode: FocusNode()..requestFocus(),
+          focusNode: _focusNode..requestFocus(),
           onKeyEvent: (event) {
             if (event is KeyDownEvent) {
               if (event.logicalKey == LogicalKeyboardKey.escape) {

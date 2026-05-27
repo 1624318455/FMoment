@@ -18,6 +18,7 @@ class AppDatabase {
       path,
       version: 1,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -67,5 +68,12 @@ class AppDatabase {
 
     // 插入默认分组
     await db.insert('color_group', {'name': '默认', 'sort': 0});
+  }
+
+  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Future migrations go here, e.g.:
+    // if (oldVersion < 2) {
+    //   await db.execute('ALTER TABLE color_card ADD COLUMN tags TEXT');
+    // }
   }
 }

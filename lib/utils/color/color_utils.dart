@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class ColorUtils {
   // HEX 转 RGB
   static Map<String, int> hexToRgb(String hex) {
@@ -125,13 +127,7 @@ class ColorUtils {
     return value <= 0.03928 ? value / 12.92 : _pow((value + 0.055) / 1.055, 2.4);
   }
 
-  static double _pow(double base, double exponent) {
-    double result = 1;
-    for (int i = 0; i < exponent; i++) {
-      result *= base;
-    }
-    return result;
-  }
+  static double _pow(double base, double exponent) => pow(base, exponent).toDouble();
 
   // WCAG 合规检查
   static Map<String, dynamic> checkWCAG(int r1, int g1, int b1, int r2, int g2, int b2) {

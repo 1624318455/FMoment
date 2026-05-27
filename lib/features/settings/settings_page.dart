@@ -93,7 +93,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                     ListTile(
                       title: const Text('项目地址'),
-                      subtitle: const Text('github.com/memeflyfly/FMoment'),
+                      subtitle: const Text('github.com/1624318455/FMoment'),
                       onTap: () {
                         // TODO: 打开链接
                       },

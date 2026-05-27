@@ -148,7 +148,7 @@ class ColorCardService {
       'SELECT MAX(sort) as max_sort FROM color_item WHERE card_id = ?',
       [cardId],
     );
-    final maxSort = result.first['maxSort'] as int? ?? 0;
+    final maxSort = result.first['max_sort'] as int? ?? 0;
 
     final id = await db.insert('color_item', {
       'card_id': cardId,

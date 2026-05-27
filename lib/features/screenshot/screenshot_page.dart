@@ -13,6 +13,9 @@ class ScreenshotPage extends ConsumerStatefulWidget {
 }
 
 class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
+  HotKey? _printScreenHotKey;
+  HotKey? _altAHotKey;
+
   @override
   void initState() {
     super.initState();
@@ -20,26 +23,24 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
   }
 
   void _registerHotkeys() {
-    // 注册 PrintScreen 快捷键
-    final printScreenHotKey = HotKey(
+    _printScreenHotKey = HotKey(
       key: PhysicalKeyboardKey.printScreen,
       scope: HotKeyScope.system,
     );
     hotKeyManager.register(
-      printScreenHotKey,
+      _printScreenHotKey!,
       keyDownHandler: (hotKey) {
         _captureRegion();
       },
     );
 
-    // 注册 ALT+A 快捷键
-    final altAHotKey = HotKey(
+    _altAHotKey = HotKey(
       key: LogicalKeyboardKey.keyA,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.system,
     );
     hotKeyManager.register(
-      altAHotKey,
+      _altAHotKey!,
       keyDownHandler: (hotKey) {
         _captureRegion();
       },
@@ -49,12 +50,12 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
   Future<void> _captureRegion() async {
     final screenshotService = ref.read(screenshotServiceProvider);
     final result = await screenshotService.captureRegion();
-    if (result != null && mounted) {
+    if (result?.imageBytes != null && mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ScreenshotEditor(
-            imageBytes: result.imageBytes!,
+            imageBytes: result!.imageBytes!,
           ),
         ),
       );
@@ -64,12 +65,12 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
   Future<void> _captureFullScreen() async {
     final screenshotService = ref.read(screenshotServiceProvider);
     final result = await screenshotService.captureFullScreen();
-    if (result != null && mounted) {
+    if (result?.imageBytes != null && mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ScreenshotEditor(
-            imageBytes: result.imageBytes!,
+            imageBytes: result!.imageBytes!,
           ),
         ),
       );
@@ -79,12 +80,12 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
   Future<void> _captureWindow() async {
     final screenshotService = ref.read(screenshotServiceProvider);
     final result = await screenshotService.captureWindow();
-    if (result != null && mounted) {
+    if (result?.imageBytes != null && mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ScreenshotEditor(
-            imageBytes: result.imageBytes!,
+            imageBytes: result!.imageBytes!,
           ),
         ),
       );
@@ -159,8 +160,8 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
 
   @override
   void dispose() {
-    // 注销热键
-    hotKeyManager.unregisterAll();
+    if (_printScreenHotKey != null) hotKeyManager.unregister(_printScreenHotKey!);
+    if (_altAHotKey != null) hotKeyManager.unregister(_altAHotKey!);
     super.dispose();
   }
 }

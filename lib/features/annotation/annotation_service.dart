@@ -94,55 +94,54 @@ class AnnotationService {
 
   // 绘制标注
   void drawAnnotation(Canvas canvas, Annotation annotation) {
-    final paint = Paint()
-      ..color = annotation.color
-      ..strokeWidth = annotation.strokeWidth
-      ..style = PaintingStyle.stroke;
-
     switch (annotation.type) {
       case AnnotationType.rectangle:
-        _drawRectangle(canvas, annotation, paint);
+        _drawRectangle(canvas, annotation);
         break;
       case AnnotationType.arrow:
-        _drawArrow(canvas, annotation, paint);
+        _drawArrow(canvas, annotation);
         break;
       case AnnotationType.text:
-        _drawText(canvas, annotation, paint);
+        _drawText(canvas, annotation);
         break;
       case AnnotationType.highlight:
-        _drawHighlight(canvas, annotation, paint);
+        _drawHighlight(canvas, annotation);
         break;
       case AnnotationType.mosaic:
-        _drawMosaic(canvas, annotation, paint);
+        _drawMosaic(canvas, annotation);
         break;
       case AnnotationType.ellipse:
-        _drawEllipse(canvas, annotation, paint);
+        _drawEllipse(canvas, annotation);
         break;
       case AnnotationType.line:
-        _drawLine(canvas, annotation, paint);
+        _drawLine(canvas, annotation);
         break;
       case AnnotationType.freehand:
-        _drawFreehand(canvas, annotation, paint);
+        _drawFreehand(canvas, annotation);
         break;
     }
   }
 
-  void _drawRectangle(Canvas canvas, Annotation annotation, Paint paint) {
+  Paint _strokePaint(Annotation annotation) => Paint()
+    ..color = annotation.color
+    ..strokeWidth = annotation.strokeWidth
+    ..style = PaintingStyle.stroke;
+
+  void _drawRectangle(Canvas canvas, Annotation annotation) {
     final rect = Rect.fromPoints(annotation.startPoint, annotation.endPoint);
-    canvas.drawRect(rect, paint);
+    canvas.drawRect(rect, _strokePaint(annotation));
   }
 
-  void _drawArrow(Canvas canvas, Annotation annotation, Paint paint) {
+  void _drawArrow(Canvas canvas, Annotation annotation) {
     final start = annotation.startPoint;
     final end = annotation.endPoint;
 
-    // 绘制箭头线
-    canvas.drawLine(start, end, paint);
+    canvas.drawLine(start, end, _strokePaint(annotation));
 
-    // 绘制箭头头部
     final arrowSize = annotation.strokeWidth * 3;
     final diff = end - start;
     final length = sqrt(diff.dx * diff.dx + diff.dy * diff.dy);
+    if (length == 0) return;
     final direction = Offset(diff.dx / length, diff.dy / length);
     final perpendicular = Offset(-direction.dy, direction.dx);
 
@@ -155,10 +154,13 @@ class AnnotationService {
       ..lineTo(arrowPoint2.dx, arrowPoint2.dy)
       ..close();
 
-    canvas.drawPath(path, paint..style = PaintingStyle.fill);
+    final fillPaint = Paint()
+      ..color = annotation.color
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, fillPaint);
   }
 
-  void _drawText(Canvas canvas, Annotation annotation, Paint paint) {
+  void _drawText(Canvas canvas, Annotation annotation) {
     if (annotation.text == null || annotation.text!.isEmpty) return;
 
     final textPainter = TextPainter(
@@ -176,45 +178,40 @@ class AnnotationService {
     textPainter.paint(canvas, annotation.startPoint);
   }
 
-  void _drawHighlight(Canvas canvas, Annotation annotation, Paint paint) {
+  void _drawHighlight(Canvas canvas, Annotation annotation) {
     final rect = Rect.fromPoints(annotation.startPoint, annotation.endPoint);
-    canvas.drawRect(
-      rect,
-      paint
-        ..color = annotation.color.withValues(alpha: 0.3)
-        ..style = PaintingStyle.fill,
-    );
+    final paint = Paint()
+      ..color = annotation.color.withValues(alpha: 0.3)
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(rect, paint);
   }
 
-  void _drawMosaic(Canvas canvas, Annotation annotation, Paint paint) {
+  void _drawMosaic(Canvas canvas, Annotation annotation) {
     final rect = Rect.fromPoints(annotation.startPoint, annotation.endPoint);
     final blockSize = annotation.strokeWidth * 2;
 
     for (double x = rect.left; x < rect.right; x += blockSize) {
       for (double y = rect.top; y < rect.bottom; y += blockSize) {
         final blockRect = Rect.fromLTWH(x, y, blockSize, blockSize);
-        canvas.drawRect(
-          blockRect,
-          paint
-            ..color = annotation.color.withValues(alpha: 0.5)
-            ..style = PaintingStyle.fill,
-        );
+        final paint = Paint()
+          ..color = annotation.color.withValues(alpha: 0.5)
+          ..style = PaintingStyle.fill;
+        canvas.drawRect(blockRect, paint);
       }
     }
   }
 
-  void _drawEllipse(Canvas canvas, Annotation annotation, Paint paint) {
+  void _drawEllipse(Canvas canvas, Annotation annotation) {
     final rect = Rect.fromPoints(annotation.startPoint, annotation.endPoint);
-    canvas.drawOval(rect, paint);
+    canvas.drawOval(rect, _strokePaint(annotation));
   }
 
-  void _drawLine(Canvas canvas, Annotation annotation, Paint paint) {
-    canvas.drawLine(annotation.startPoint, annotation.endPoint, paint);
+  void _drawLine(Canvas canvas, Annotation annotation) {
+    canvas.drawLine(annotation.startPoint, annotation.endPoint, _strokePaint(annotation));
   }
 
-  void _drawFreehand(Canvas canvas, Annotation annotation, Paint paint) {
-    // TODO: 实现自由画笔
-    canvas.drawLine(annotation.startPoint, annotation.endPoint, paint);
+  void _drawFreehand(Canvas canvas, Annotation annotation) {
+    canvas.drawLine(annotation.startPoint, annotation.endPoint, _strokePaint(annotation));
   }
 }
 
