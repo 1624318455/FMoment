@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../data/config_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -13,6 +15,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _hotkeyColorPicker = 'ALT+C';
   bool _autoStart = false;
   bool _minimizeToTray = true;
+  String _screenshotSavePath = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final configService = ref.read(configServiceProvider);
+    final path = await configService.getScreenshotSavePath();
+    if (mounted) {
+      setState(() {
+        _screenshotSavePath = path;
+      });
+    }
+  }
+
+  Future<void> _pickScreenshotPath() async {
+    final result = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: '选择截图保存路径',
+      initialDirectory: _screenshotSavePath,
+    );
+    if (result != null) {
+      final configService = ref.read(configServiceProvider);
+      await configService.setScreenshotSavePath(result);
+      if (mounted) {
+        setState(() {
+          _screenshotSavePath = result;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +64,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           Expanded(
             child: ListView(
               children: [
+                _buildSection(
+                  context,
+                  title: '截图',
+                  children: [
+                    ListTile(
+                      title: const Text('截图保存路径'),
+                      subtitle: Text(
+                        _screenshotSavePath.isEmpty ? '加载中...' : _screenshotSavePath,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: TextButton(
+                        onPressed: _pickScreenshotPath,
+                        child: const Text('修改'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 _buildSection(
                   context,
                   title: '快捷键',
@@ -87,9 +141,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   context,
                   title: '关于',
                   children: [
-                    ListTile(
-                      title: const Text('版本'),
-                      subtitle: const Text('1.0.0'),
+                    const ListTile(
+                      title: Text('版本'),
+                      subtitle: Text('1.0.0'),
                     ),
                     ListTile(
                       title: const Text('项目地址'),

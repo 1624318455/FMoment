@@ -1,8 +1,11 @@
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import '../float_window/float_window_service.dart';
 import '../annotation/annotation_service.dart';
+import '../../data/config_service.dart';
 
 class ScreenshotEditor extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
@@ -236,17 +239,26 @@ class _ScreenshotEditorState extends ConsumerState<ScreenshotEditor> {
     );
   }
 
-  void _saveImage() {
-    // TODO: 保存图片到文件
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('图片已保存')),
-    );
+  Future<void> _saveImage() async {
+    final configService = ref.read(configServiceProvider);
+    final dir = await configService.getScreenshotSavePath();
+    await Directory(dir).create(recursive: true);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final filePath = p.join(dir, 'annotated_$timestamp.png');
+    await File(filePath).writeAsBytes(widget.imageBytes);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('已保存: $filePath')),
+      );
+    }
   }
 
   void _copyToClipboard() {
-    // TODO: 复制图片到剪贴板
+    Clipboard.setData(ClipboardData(
+      text: '截图已保存（图片暂不支持直接复制到剪贴板）',
+    ));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('图片已复制到剪贴板')),
+      const SnackBar(content: Text('已复制提示到剪贴板')),
     );
   }
 

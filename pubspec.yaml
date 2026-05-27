@@ -50,6 +50,9 @@ dependencies:
   ffi: ^2.2.0
   win32: ^5.15.0
 
+  # 文件选择
+  file_picker: ^8.3.7
+
   # UI
   cupertino_icons: ^1.0.8
 

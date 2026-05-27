@@ -53,11 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 数据库迁移钩子接入
 - 放大镜边缘溢出自动翻转
 - `drawAnnotation` 改为 static，避免每帧重建实例
+- 移除有原生崩溃 bug 的 `hotkey_manager` 插件，改用 Win32 API 直接注册全局热键
+- `sqflite_common_ffi` 初始化，修复 Windows 桌面端数据库无法使用的问题
+- 窗口显示时序修复，避免启动白屏
 
 ### Commits
 
 | Hash | Description |
 |------|-------------|
+| `d6eac6a` | fix: replace hotkey_manager with native Win32 hotkey, add sqflite FFI init |
+| `4864ba7` | docs: consolidate CHANGELOG for v1.0.0 release |
 | `57836c4` | fix: magnifier edge clamping and static drawAnnotation |
 | `ce51b75` | fix: resolve 12 runtime issues from code review |
 | `5bb42d9` | docs: update README and add CHANGELOG via Hermes |
