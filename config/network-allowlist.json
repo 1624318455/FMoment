@@ -1,0 +1,5 @@
+{
+  "allowed_hosts": [],
+  "blocked_hosts": [],
+  "timeout_ms": 5000
+}
