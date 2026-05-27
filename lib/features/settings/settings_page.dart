@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
 import '../../data/config_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -34,25 +34,51 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _pickScreenshotPath() async {
-    try {
-      final result = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: '选择截图保存路径',
-        initialDirectory: _screenshotSavePath.isNotEmpty ? _screenshotSavePath : null,
-      );
-      if (result != null) {
-        final configService = ref.read(configServiceProvider);
-        await configService.setScreenshotSavePath(result);
-        if (mounted) {
-          setState(() {
-            _screenshotSavePath = result;
-          });
-        }
-      }
-    } catch (e) {
+    final controller = TextEditingController(text: _screenshotSavePath);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('设置截图保存路径'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: '输入完整路径，如 D:\\Screenshots',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // 用资源管理器打开当前路径
+              final path = controller.text.isNotEmpty
+                  ? controller.text
+                  : _screenshotSavePath;
+              if (Directory(path).existsSync()) {
+                Process.run('explorer', [path]);
+              }
+            },
+            child: const Text('打开文件夹'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final configService = ref.read(configServiceProvider);
+      await configService.setScreenshotSavePath(result);
+      await Directory(result).create(recursive: true);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('选择路径失败: $e')),
-        );
+        setState(() {
+          _screenshotSavePath = result;
+        });
       }
     }
   }
