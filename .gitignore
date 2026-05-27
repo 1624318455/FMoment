@@ -4,13 +4,20 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.iml
+
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.egg-info/
 dist/
-build/
 
 # Environment
 .env
