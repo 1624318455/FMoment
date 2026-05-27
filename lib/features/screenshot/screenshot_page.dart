@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hotkey_manager/hotkey_manager.dart';
+import '../../platform/native_hotkey.dart';
 import 'screenshot_service.dart';
 import 'screenshot_editor.dart';
 
@@ -13,8 +12,8 @@ class ScreenshotPage extends ConsumerStatefulWidget {
 }
 
 class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
-  HotKey? _printScreenHotKey;
-  HotKey? _altAHotKey;
+  int _printScreenHotKeyId = -1;
+  int _altAHotKeyId = -1;
 
   @override
   void initState() {
@@ -23,27 +22,16 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
   }
 
   void _registerHotkeys() {
-    _printScreenHotKey = HotKey(
-      key: PhysicalKeyboardKey.printScreen,
-      scope: HotKeyScope.system,
+    // PrintScreen = VK_SNAPSHOT (0x2C)
+    _printScreenHotKeyId = NativeHotkey.register(
+      vk: 0x2C,
+      handler: () => _captureRegion(),
     );
-    hotKeyManager.register(
-      _printScreenHotKey!,
-      keyDownHandler: (hotKey) {
-        _captureRegion();
-      },
-    );
-
-    _altAHotKey = HotKey(
-      key: LogicalKeyboardKey.keyA,
-      modifiers: [HotKeyModifier.alt],
-      scope: HotKeyScope.system,
-    );
-    hotKeyManager.register(
-      _altAHotKey!,
-      keyDownHandler: (hotKey) {
-        _captureRegion();
-      },
+    // ALT+A
+    _altAHotKeyId = NativeHotkey.register(
+      vk: 0x41, // 'A'
+      alt: true,
+      handler: () => _captureRegion(),
     );
   }
 
@@ -160,8 +148,8 @@ class _ScreenshotPageState extends ConsumerState<ScreenshotPage> {
 
   @override
   void dispose() {
-    if (_printScreenHotKey != null) hotKeyManager.unregister(_printScreenHotKey!);
-    if (_altAHotKey != null) hotKeyManager.unregister(_altAHotKey!);
+    NativeHotkey.unregister(_printScreenHotKeyId);
+    NativeHotkey.unregister(_altAHotKeyId);
     super.dispose();
   }
 }

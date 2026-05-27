@@ -36,13 +36,13 @@ dependencies:
 
   # 本地数据库
   sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.4
   path_provider: ^2.1.5
   path: ^1.9.1
 
   # Windows 原生通道插件
   screen_retriever: ^0.2.0          # 屏幕捕获、像素取色、显示器信息
   screen_capturer: ^0.2.3           # 快速截图
-  hotkey_manager: ^0.2.3            # 全局热键
   window_manager: ^0.4.3            # 无边框窗口、置顶、透明、尺寸控制
   system_tray: ^2.0.3               # 系统托盘
 

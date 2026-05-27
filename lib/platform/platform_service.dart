@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:screen_capturer/screen_capturer.dart';
-import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:system_tray/system_tray.dart';
 
@@ -29,19 +28,6 @@ class PlatformService {
       imagePath: imagePath,
       copyToClipboard: copyToClipboard,
       silent: silent,
-    );
-  }
-
-  // 全局热键注册
-  Future<void> registerHotkey({
-    required HotKey hotKey,
-    required HotKeyHandler keyDownHandler,
-    HotKeyHandler? keyUpHandler,
-  }) async {
-    await hotKeyManager.register(
-      hotKey,
-      keyDownHandler: keyDownHandler,
-      keyUpHandler: keyUpHandler,
     );
   }
 

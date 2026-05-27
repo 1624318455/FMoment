@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hotkey_manager/hotkey_manager.dart';
+import '../../platform/native_hotkey.dart';
 import 'color_picker_service.dart';
 import 'color_picker_overlay.dart';
 
@@ -16,6 +16,7 @@ class _ColorPickerPageState extends ConsumerState<ColorPickerPage> {
   Color _selectedColor = Colors.blue;
   String _colorFormat = 'HEX';
   bool _isPicking = false;
+  int _altCHotKeyId = -1;
 
   @override
   void initState() {
@@ -24,17 +25,11 @@ class _ColorPickerPageState extends ConsumerState<ColorPickerPage> {
   }
 
   void _registerHotkeys() {
-    // 注册 ALT+C 快捷键
-    final altCHotKey = HotKey(
-      key: LogicalKeyboardKey.keyC,
-      modifiers: [HotKeyModifier.alt],
-      scope: HotKeyScope.system,
-    );
-    hotKeyManager.register(
-      altCHotKey,
-      keyDownHandler: (hotKey) {
-        _startPicking();
-      },
+    // ALT+C
+    _altCHotKeyId = NativeHotkey.register(
+      vk: 0x43, // 'C'
+      alt: true,
+      handler: () => _startPicking(),
     );
   }
 
@@ -370,7 +365,7 @@ class _ColorPickerPageState extends ConsumerState<ColorPickerPage> {
 
   @override
   void dispose() {
-    hotKeyManager.unregisterAll();
+    NativeHotkey.unregister(_altCHotKeyId);
     super.dispose();
   }
 }
