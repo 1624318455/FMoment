@@ -34,17 +34,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _pickScreenshotPath() async {
-    final result = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: '选择截图保存路径',
-      initialDirectory: _screenshotSavePath,
-    );
-    if (result != null) {
-      final configService = ref.read(configServiceProvider);
-      await configService.setScreenshotSavePath(result);
+    try {
+      final result = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: '选择截图保存路径',
+        initialDirectory: _screenshotSavePath.isNotEmpty ? _screenshotSavePath : null,
+      );
+      if (result != null) {
+        final configService = ref.read(configServiceProvider);
+        await configService.setScreenshotSavePath(result);
+        if (mounted) {
+          setState(() {
+            _screenshotSavePath = result;
+          });
+        }
+      }
+    } catch (e) {
       if (mounted) {
-        setState(() {
-          _screenshotSavePath = result;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('选择路径失败: $e')),
+        );
       }
     }
   }
