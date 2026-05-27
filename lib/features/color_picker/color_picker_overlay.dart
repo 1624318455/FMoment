@@ -95,6 +95,18 @@ class _ColorPickerOverlayState extends ConsumerState<ColorPickerOverlay> {
     final hex = ColorUtils.rgbToHex(r, g, b);
     final hsl = ColorUtils.rgbToHsl(r, g, b);
 
+    // 防止放大镜溢出屏幕边缘
+    final screen = MediaQuery.of(context).size;
+    final magnifierW = (_gridSize * _pixelSize) + 96; // grid + padding
+    final magnifierH = (_gridSize * _pixelSize) + 48;
+    final infoH = 80.0;
+    final totalH = magnifierH + infoH + 16;
+
+    final flipX = _cursorPosition.dx + 20 + magnifierW > screen.width;
+    final flipY = _cursorPosition.dy + 20 + totalH > screen.height;
+    final magLeft = flipX ? _cursorPosition.dx - 20 - magnifierW : _cursorPosition.dx + 20;
+    final magTop = flipY ? _cursorPosition.dy - 20 - totalH : _cursorPosition.dy + 20;
+
     return Stack(
       children: [
         // 全屏透明层，捕获点击和键盘事件
@@ -122,14 +134,14 @@ class _ColorPickerOverlayState extends ConsumerState<ColorPickerOverlay> {
         ),
         // 放大镜跟随鼠标
         Positioned(
-          left: _cursorPosition.dx + 20,
-          top: _cursorPosition.dy + 20,
+          left: magLeft,
+          top: magTop,
           child: _buildMagnifier(hex, hsl),
         ),
         // 颜色值显示
         Positioned(
-          left: _cursorPosition.dx + 20,
-          top: _cursorPosition.dy + 20 + (_gridSize * _pixelSize) + 60,
+          left: magLeft,
+          top: magTop + magnifierH + 8,
           child: _buildColorInfo(hex, hsl),
         ),
         // 顶部提示

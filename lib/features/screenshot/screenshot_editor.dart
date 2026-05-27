@@ -318,14 +318,12 @@ class AnnotationPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final annotationService = AnnotationService();
-
     for (final annotation in annotations) {
-      annotationService.drawAnnotation(canvas, annotation);
+      AnnotationService.drawAnnotation(canvas, annotation);
     }
 
     if (currentAnnotation != null) {
-      annotationService.drawAnnotation(canvas, currentAnnotation!);
+      AnnotationService.drawAnnotation(canvas, currentAnnotation!);
     }
   }
 
